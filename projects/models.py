@@ -43,3 +43,63 @@ class generos(models.Model):
 class peliculas_generos(models.Model):
     pelicula = models.ForeignKey(peliculas, on_delete=models.CASCADE)
     genero = models.ForeignKey(generos, on_delete=models.CASCADE)
+
+class series_generos(models.Model):
+    series = models.ForeignKey(series, on_delete=models.CASCADE)
+    genero = models.ForeignKey(generos, on_delete=models.CASCADE)
+
+class episodios(models.Model):
+    serieId = models.ForeignKey(series, on_delete=models.CASCADE)
+    numeroEpisodio = models.IntegerField()
+    tituloEpisodio = models.CharField(max_length=50)
+    duracion = models.IntegerField()
+    anoLanzamiento = models.DateField()
+
+class ValoracionesPeliculas(models.Model):
+    usuarioId  = models.ForeignKey(usuarios, on_delete=models.CASCADE)
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.CASCADE)
+    valoracion = models.IntegerField()
+    comentario = models.TextField()
+    fechaValoracion = models.DateTimeField(auto_now_add=True)
+
+class ValoracionesSeries(models.Model):
+    from django.db import models
+
+class ValoracionesSeries(models.Model):
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
+    serieId = models.ForeignKey(series, on_delete=models.CASCADE)
+    valoracion = models.IntegerField()
+    comentario = models.TextField()
+    fechaValoracion = models.DateTimeField(auto_now_add=True)
+
+class Playlists(models.Model):
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
+    nombreLista = models.CharField(max_length=50)
+
+
+class Planes(models.Model):
+    nombre = models.CharField(max_length=50)
+    precioMensual = models.DecimalField(max_digits=10, decimal_places=2)
+    calidadVideo = models.CharField(max_length=50)
+    resolucion = models.CharField(max_length=20)
+class Facturacion(models.Model):
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
+    numeroDeTarjeta = models.CharField(max_length=16)
+    fechaDeVencimiento = models.DateField()
+    cvv = models.CharField(max_length=4)
+    nombreEnLaTarjeta = models.CharField(max_length=50)
+
+class ActoresYActrices(models.Model):
+    nombre = models.CharField(max_length=50)
+    fechaDeNacimiento = models.DateField()
+    nacionalidad = models.CharField(max_length=50)
+
+class Directores(models.Model):
+    nombre = models.CharField(max_length=50)
+    fechaDeNacimiento = models.DateField()
+    nacionalidad = models.CharField(max_length=50)
+
+class EstudiosProductoras(models.Model):
+    nombre = models.CharField(max_length=50)
+    pais = models.CharField(max_length=50)
+    anoDeFundacion = models.IntegerField()
