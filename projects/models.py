@@ -101,3 +101,75 @@ class EstudiosProductoras(models.Model):
     nombre = models.CharField(max_length=50)
     pais = models.CharField(max_length=50)
     anoDeFundacion = models.IntegerField()
+    
+class ListaReproduccionContenido(models.Model):
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
+    nombreLista = models.CharField(max_length=50)
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.SET_NULL, null=True)
+    serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True)
+    
+class Visualizaciones(models.Model):
+    usuarioId=  models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.SET_NULL, null=True)
+    serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True)
+    fechaVisualizacion= models.DateTimeField(auto_now_add=True)
+ 
+class ComentariosGenerales(models.Model):
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
+    comentario = models.TextField()
+    fechaComentario= models.DateTimeField(auto_now_add=True)
+    
+class RegistroSessiones(models.Model):
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
+    fechaHoraInSesion= models.DateTimeField(auto_now_add=True)
+    
+class DescargasOffline(models.Model):
+    usuarioId=  models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.SET_NULL, null=True)
+    serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True)
+    fechaDescarga= models.DateTimeField(auto_now_add=True)
+    
+class Subtitulos(models.Model):
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.SET_NULL, null=True)
+    serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True)
+    idioma= models.models.CharField(max_length=50)
+    formato=models.models.CharField(max_length=3)
+    RutaArchivo=models.models.CharField(max_length=50)
+    fechaCreacion= models.DateTimeField()
+    fechaModificacion= models.DateTimeField(auto_now_add=True)
+    
+class Popularidad(models.Model):
+    serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True) 
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.SET_NULL, null=True)
+    episodioId=  models.ForeignKey(episodios, on_delete=models.SET_NULL, null=True)
+    cantidadVisualizaciones = models.IntegerField(default=0)
+
+class HistorialVisualizacion(models.Model):
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
+    TIPO_CONTENIDO_CHOICES = [
+        ('serie', 'Serie'),
+        ('pelicula', 'Película'),
+        ('episodio', 'Episodio'),
+    ]
+
+    tipoContenido = models.CharField(
+        max_length=10,
+        choices=TIPO_CONTENIDO_CHOICES,
+        default='serie'  # se puede establecer de deafualt cualuiqera al chile.
+    )
+    fechaVisualizacion = models.DateTimeField(auto_now_add=True)
+    duracionVisualizacion = models.DecimalField(max_digits=4, decimal_places=2)
+
+   
+    
+    
+    
+      
+    
+    
+    
+      
+    
+    
+    
+    
