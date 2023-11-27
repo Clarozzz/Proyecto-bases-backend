@@ -49,29 +49,29 @@ class series_generos(models.Model):
     genero = models.ForeignKey(generos, on_delete=models.CASCADE)
 
 class episodios(models.Model):
-    serieId = models.ForeignKey(series, on_delete=models.PROTECT)
+    serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True)
     numeroEpisodio = models.IntegerField()
     tituloEpisodio = models.CharField(max_length=50)
     duracion = models.IntegerField()
     anoLanzamiento = models.DateField()
 
 class ValoracionesPeliculas(models.Model):
-    usuarioId  = models.ForeignKey(usuarios, on_delete=models.PROTECT)
-    peliculaId  = models.ForeignKey(peliculas, on_delete=models.PROTECT)
+    usuarioId  = models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.SET_NULL, null=True)
     valoracion = models.IntegerField()
     comentario = models.TextField()
     fechaValoracion = models.DateTimeField(auto_now_add=True)
 
 
 class ValoracionesSeries(models.Model):
-    usuarioId = models.ForeignKey(usuarios, on_delete=models.PROTEC)
-    serieId = models.ForeignKey(series, on_delete=models.PROTEC)
+    usuarioId = models.ForeignKey(usuarios,on_delete=models.SET_NULL, null=True)
+    serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True)
     valoracion = models.IntegerField()
     comentario = models.TextField()
     fechaValoracion = models.DateTimeField(auto_now_add=True)
 
 class Playlists(models.Model):
-    usuarioId = models.ForeignKey(usuarios, on_delete=models.PROTECT)
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
     nombreLista = models.CharField(max_length=50)
 
 
@@ -81,7 +81,7 @@ class Planes(models.Model):
     calidadVideo = models.CharField(max_length=50)
     resolucion = models.CharField(max_length=20)
 class Facturacion(models.Model):
-    usuarioId = models.ForeignKey(usuarios, on_delete=models.PROTECT)
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.SET_NULL, null=True)
     numeroDeTarjeta = models.CharField(max_length=16)
     fechaDeVencimiento = models.DateField()
     cvv = models.CharField(max_length=4)
