@@ -132,9 +132,9 @@ class DescargasOffline(models.Model):
 class Subtitulos(models.Model):
     peliculaId  = models.ForeignKey(peliculas, on_delete=models.SET_NULL, null=True)
     serieId = models.ForeignKey(series, on_delete=models.SET_NULL, null=True)
-    idioma= models.models.CharField(max_length=50)
-    formato=models.models.CharField(max_length=3)
-    RutaArchivo=models.models.CharField(max_length=50)
+    idioma= models.CharField(max_length=50)
+    formato=models.CharField(max_length=3)
+    RutaArchivo=models.CharField(max_length=50)
     fechaCreacion= models.DateTimeField()
     fechaModificacion= models.DateTimeField(auto_now_add=True)
     
