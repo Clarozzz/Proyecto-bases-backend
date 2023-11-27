@@ -49,21 +49,19 @@ class series_generos(models.Model):
     genero = models.ForeignKey(generos, on_delete=models.CASCADE)
 
 class episodios(models.Model):
-    serieId = models.ForeignKey(series, on_delete=models.CASCADE)
+    serieId = models.ForeignKey(series, on_delete=models.PROTECT)
     numeroEpisodio = models.IntegerField()
     tituloEpisodio = models.CharField(max_length=50)
     duracion = models.IntegerField()
     anoLanzamiento = models.DateField()
 
 class ValoracionesPeliculas(models.Model):
-    usuarioId  = models.ForeignKey(usuarios, on_delete=models.CASCADE)
-    peliculaId  = models.ForeignKey(peliculas, on_delete=models.CASCADE)
+    usuarioId  = models.ForeignKey(usuarios, on_delete=models.PROTECT)
+    peliculaId  = models.ForeignKey(peliculas, on_delete=models.PROTECT)
     valoracion = models.IntegerField()
     comentario = models.TextField()
     fechaValoracion = models.DateTimeField(auto_now_add=True)
 
-class ValoracionesSeries(models.Model):
-    from django.db import models
 
 class ValoracionesSeries(models.Model):
     usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
@@ -73,7 +71,7 @@ class ValoracionesSeries(models.Model):
     fechaValoracion = models.DateTimeField(auto_now_add=True)
 
 class Playlists(models.Model):
-    usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.PROTECT)
     nombreLista = models.CharField(max_length=50)
 
 
@@ -83,7 +81,7 @@ class Planes(models.Model):
     calidadVideo = models.CharField(max_length=50)
     resolucion = models.CharField(max_length=20)
 class Facturacion(models.Model):
-    usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.PROTECT)
     numeroDeTarjeta = models.CharField(max_length=16)
     fechaDeVencimiento = models.DateField()
     cvv = models.CharField(max_length=4)
