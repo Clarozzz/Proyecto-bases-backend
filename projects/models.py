@@ -64,8 +64,8 @@ class ValoracionesPeliculas(models.Model):
 
 
 class ValoracionesSeries(models.Model):
-    usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
-    serieId = models.ForeignKey(series, on_delete=models.CASCADE)
+    usuarioId = models.ForeignKey(usuarios, on_delete=models.PROTEC)
+    serieId = models.ForeignKey(series, on_delete=models.PROTEC)
     valoracion = models.IntegerField()
     comentario = models.TextField()
     fechaValoracion = models.DateTimeField(auto_now_add=True)
