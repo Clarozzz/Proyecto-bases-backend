@@ -1,12 +1,13 @@
 from django.db import models
 
 # Create your models here.
+
 class tipoUsuario(models.Model):
     tipo = models.CharField(max_length=50)
+    class Meta:
+        db_table = 'tipoUsuario'
 
 class usuarios(models.Model):
-    nombre = models.CharField(max_length=50)
-    apellido = models.CharField(max_length=50)
     correo = models.CharField(max_length=255, unique=True)
     contrasena = models.CharField(max_length=50)
     fechaRegistro = models.DateTimeField(auto_now_add=True)
@@ -23,83 +24,95 @@ class perfiles(models.Model):
 class clasificacionEdad(models.Model):
     clasificacion = models.CharField(max_length=50)
 
-class peliculas(models.Model):
+class generos(models.Model):
+    nombre = models.CharField(max_length=50)
+
+class idioma(models.Model):
+    nombre = models.CharField(max_length=50)
+
+class contenido(models.Model):
     titulo = models.CharField(max_length=50)
     descripcion = models.CharField(max_length=255)
     anioLanzamiento = models.DateField()
     clasificacionEdad = models.ForeignKey(clasificacionEdad, null=True, on_delete=models.SET_NULL)
+    idiomaOriginal = models.ForeignKey(idioma, on_delete=models.CASCADE)
+
+class contenido_generos(models.Model):
+    contenido = models.ForeignKey(contenido, null=True, on_delete=models.SET_NULL)
+    generos = models.ForeignKey(generos, null=True, on_delete=models.SET_NULL)
+
+class subtitulos(models.Model):
+    idioma = models.ForeignKey(idioma, on_delete=models.CASCADE)
+
+class peliculas(models.Model):
+    contenido = models.ForeignKey(contenido, on_delete=models.CASCADE)
     duracion = models.IntegerField()
 
-
 class series(models.Model):
+    contenido = models.ForeignKey(contenido, on_delete=models.CASCADE)
+    cantTemporadas = models.IntegerField()
+
+class contenido_idiomas(models.Model):
+    idioma = models.ForeignKey(idioma, null=True, on_delete=models.SET_NULL)
+    contenido = models.ForeignKey(contenido, null=True, on_delete=models.SET_NULL)
+
+class contenido_subtitulos(models.Model):
+    idioma = models.ForeignKey(idioma, null=True, on_delete=models.SET_NULL)
+    contenido = models.ForeignKey(contenido, null=True, on_delete=models.SET_NULL)
+
+class temporadas(models.Model):
     nombre = models.CharField(max_length=50)
-    descripcion = models.CharField(max_length=255)
-    anioLanzamiento = models.DateField()
-    clasificacionEdad = models.ForeignKey(clasificacionEdad, null=True, on_delete=models.SET_NULL)
-
-class generos(models.Model):
-    nombre = models.CharField(max_length=50)
-
-class peliculas_generos(models.Model):
-    pelicula = models.ForeignKey(peliculas, on_delete=models.CASCADE)
-    genero = models.ForeignKey(generos, on_delete=models.CASCADE)
-
-class series_generos(models.Model):
-    series = models.ForeignKey(series, on_delete=models.CASCADE)
-    genero = models.ForeignKey(generos, on_delete=models.CASCADE)
+    serie = models.ForeignKey(series, on_delete=models.CASCADE)
+    anoDeEstreno = models.DateField()
+    cantEpisodios = models.IntegerField()
 
 class episodios(models.Model):
-    serieId = models.ForeignKey(series, on_delete=models.CASCADE)
+    temporada = models.ForeignKey(temporadas, on_delete=models.CASCADE)
     numeroEpisodio = models.IntegerField()
     tituloEpisodio = models.CharField(max_length=50)
     duracion = models.IntegerField()
     anoLanzamiento = models.DateField()
+    descripcion = models.CharField(max_length=255, null=True)
 
-class ValoracionesPeliculas(models.Model):
+class ValoracionesContenido(models.Model):
     usuarioId  = models.ForeignKey(usuarios, on_delete=models.CASCADE)
-    peliculaId  = models.ForeignKey(peliculas, on_delete=models.CASCADE)
-    valoracion = models.IntegerField()
-    comentario = models.TextField()
-    fechaValoracion = models.DateTimeField(auto_now_add=True)
-
-class ValoracionesSeries(models.Model):
-    from django.db import models
-
-class ValoracionesSeries(models.Model):
-    usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
-    serieId = models.ForeignKey(series, on_delete=models.CASCADE)
+    contenido  = models.ForeignKey(contenido, on_delete=models.CASCADE)
     valoracion = models.IntegerField()
     comentario = models.TextField()
     fechaValoracion = models.DateTimeField(auto_now_add=True)
 
 class Playlists(models.Model):
     usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
+    contenido = models.ForeignKey(contenido, on_delete=models.CASCADE)
     nombreLista = models.CharField(max_length=50)
-
 
 class Planes(models.Model):
     nombre = models.CharField(max_length=50)
     precioMensual = models.DecimalField(max_digits=10, decimal_places=2)
     calidadVideo = models.CharField(max_length=50)
     resolucion = models.CharField(max_length=20)
+
 class Facturacion(models.Model):
     usuarioId = models.ForeignKey(usuarios, on_delete=models.CASCADE)
     numeroDeTarjeta = models.CharField(max_length=16)
     fechaDeVencimiento = models.DateField()
-    cvv = models.CharField(max_length=4)
+    cvv = models.CharField(max_length=3)
     nombreEnLaTarjeta = models.CharField(max_length=50)
 
-class ActoresYActrices(models.Model):
+class pais(models.Model):
     nombre = models.CharField(max_length=50)
-    fechaDeNacimiento = models.DateField()
-    nacionalidad = models.CharField(max_length=50)
 
-class Directores(models.Model):
+class rol(models.Model):
     nombre = models.CharField(max_length=50)
+
+class personas(models.Model):
+    nombre = models.CharField(max_length=50)
+    apellido = models.CharField(max_length=50)
     fechaDeNacimiento = models.DateField()
-    nacionalidad = models.CharField(max_length=50)
+    pais = models.ForeignKey(pais, null=True, on_delete=models.SET_NULL)
+    rol = models.ForeignKey(rol, null=True, on_delete=models.SET_NULL)
 
 class EstudiosProductoras(models.Model):
     nombre = models.CharField(max_length=50)
-    pais = models.CharField(max_length=50)
+    pais = models.ForeignKey(pais, null=True, on_delete=models.SET_NULL)
     anoDeFundacion = models.IntegerField()
