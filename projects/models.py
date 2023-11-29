@@ -5,7 +5,7 @@ from django.db import models
 class tipoUsuario(models.Model):
     tipo = models.CharField(max_length=50)
     class Meta:
-        db_table = 'tipoUsuario'
+        db_table = 'tipo_Usuario'
 
 class usuarios(models.Model):
     correo = models.CharField(max_length=255, unique=True)
@@ -148,17 +148,4 @@ class HistorialVisualizacion(models.Model):
     contenido = models.ForeignKey(contenido, on_delete=models.CASCADE)
     fechaVisualizacion = models.DateTimeField(auto_now_add=True)
     duracionVisualizacion = models.DecimalField(max_digits=4, decimal_places=2)
-
    
-    
-    
-    
-      
-    
-    
-    
-      
-    
-    
-    
-    
