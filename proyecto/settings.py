@@ -79,7 +79,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'localhost:1521/xe',
-        'USER': 'NETFLIX',
+        'USER': 'C##Prueba',
         'PASSWORD': 'oracle',
         'TEST': {
             'USER': 'default_test',
