@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.db import connection
 from .models import *
 import json
 from django.contrib.auth import authenticate, login
@@ -18,7 +19,7 @@ class tipoUsuarioView(View):
             tipos=list(tipoUsuario.objects.filter(id=id).values())
             if len(tipos) > 0:
                 tipo = tipos[0]
-                datos = {'message':'Success', 'tipos':tipo}
+                datos = {'message':'Success', 'tipo':tipo}
             else:
                 datos = {'message':'tipo no encontrado'}
             return JsonResponse(datos)
@@ -69,7 +70,7 @@ class UsuariosView(View):
 
     def get(self, request, id=0):
         if id > 0:
-            usuario_data = list(usuarios.objects.filter(id=id).values('id', 'correo', 'contrasena', 'fechaRegistro', 'tipoUsuario__tipo'))
+            usuario_data = list(usuarios.objects.filter(id=id).values())
             if len(usuario_data) > 0:
                 usuario = usuario_data[0]
                 datos = {'message': 'Success', 'usuario': usuario}
@@ -77,7 +78,7 @@ class UsuariosView(View):
                 datos = {'message': 'Usuario no encontrado'}
             return JsonResponse(datos)
         else:
-            usuarios_data = list(usuarios.objects.values('id', 'correo', 'contrasena', 'fechaRegistro', 'tipoUsuario__tipo'))
+            usuarios_data = list(usuarios.objects.values())
             if len(usuarios_data) > 0:
                 datos = {'message': 'Success', 'usuarios': usuarios_data}
             else:
@@ -143,51 +144,38 @@ class TelefonosView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, usuario_id=0):
-        if usuario_id > 0:
-            try:
-                usuario = usuarios.objects.get(id=usuario_id)
-                telefonos_data = list(telefonos.objects.filter(usuarioId=usuario_id).values())
-                if len(telefonos_data) > 0:
-                    telefonos_list = telefonos_data
-                    usuario_info = {
-                        'id': usuario.id,
-                        'correo': usuario.correo,
-                    }
-                    datos = {'message': 'Success', 'usuario': usuario_info, 'telefonos': telefonos_list}
-                else:
-                    datos = {'message': 'Telefonos no encontrados para el usuario', 'usuario': {}}
-            except usuarios.DoesNotExist:
-                datos = {'message': 'Usuario no encontrado'}
+    def get(self, request, id=0):
+        if id > 0:
+            telefonos_data = list(telefonos.objects.filter(id=id).values())
+            if len(telefonos_data) > 0:
+                telefono = telefonos_data[0]
+                datos = {'message': 'Success', 'telefono': telefono}
+            else:
+                datos = {'message': 'Telefono no encontrado'}
+            return JsonResponse(datos)
         else:
             telefonos_data = list(telefonos.objects.values())
             if len(telefonos_data) > 0:
                 datos = {'message': 'Success', 'telefonos': telefonos_data}
             else:
                 datos = {'message': 'Telefonos no encontrados'}
-
-        return JsonResponse(datos)
+            return JsonResponse(datos)
 
     def post(self, request):
         jd = json.loads(request.body)
-        usuario_id = jd.get('usuarioId', '')
-        telefono = jd.get('telefono', '')
-
-        if usuarios.objects.filter(id=usuario_id).exists():
-            telefono_obj = telefonos.objects.create(usuarioId_id=usuario_id, telefono=telefono)
-            datos = {'message': 'Success', 'telefono_id': telefono_obj.id}
-        else:
-            datos = {'message': 'Usuario no encontrado'}
-
+        telefonos.objects.create(usuarioId_id=jd['usuarioId'], telefono=jd['telefono'])
+        datos = {'message':'Success'}
         return JsonResponse(datos)
 
-    def put(self, request, telefono_id):
+    def put(self, request, id):
         jd = json.loads(request.body)
-        telefonos_data = list(telefonos.objects.filter(id=telefono_id).values())
+        telefonos_data = list(telefonos.objects.filter(id=id).values())
 
         if len(telefonos_data) > 0:
-            telefono = telefonos.objects.get(id=telefono_id)
-            telefono.telefono = jd.get('telefono', '')
+            usuario = usuarios.objects.get(id=jd['usuarioId_id'])
+            telefono = telefonos.objects.get(id=id)
+            telefono.telefono = jd['telefono']
+            telefono.usuarioId = usuario
             telefono.save()
             datos = {'message': 'Success'}
         else:
@@ -195,11 +183,11 @@ class TelefonosView(View):
 
         return JsonResponse(datos)
 
-    def delete(self, request, telefono_id):
-        telefonos_data = list(telefonos.objects.filter(id=telefono_id).values())
+    def delete(self, request, id):
+        telefonos_data = list(telefonos.objects.filter(id=id).values())
 
         if len(telefonos_data) > 0:
-            telefonos.objects.filter(id=telefono_id).delete()
+            telefonos.objects.filter(id=id).delete()
             datos = {'message': 'Success'}
         else:
             datos = {'message': 'Teléfono no encontrado'}
@@ -212,62 +200,49 @@ class PerfilesView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, usuario_id=0):
-        if usuario_id > 0:
-            try:
-                usuario = usuarios.objects.get(id=usuario_id)
-                perfiles_data = list(perfiles.objects.filter(usuario=usuario_id).values())
-                if len(perfiles_data) > 0:
-                    perfiles_list = perfiles_data
-                    usuario_info = {
-                        'id': usuario.id,
-                        'correo': usuario.correo,
-                    }
-                    datos = {'message': 'Success', 'usuario': usuario_info, 'perfiles': perfiles_list}
-                else:
-                    datos = {'message': 'Perfiles no encontrados para el usuario', 'usuario': {}}
-            except usuarios.DoesNotExist:
+    def get(self, request, id=0):
+        if id > 0:
+            perfiles_data = list(perfiles.objects.filter(id=id).values())
+            if len(perfiles_data) > 0:
+                perfil = perfiles_data[0]
+                datos = {'message': 'Success', 'usuario': perfil}
+            else:
                 datos = {'message': 'Usuario no encontrado'}
+            return JsonResponse(datos)
         else:
             perfiles_data = list(perfiles.objects.values())
             if len(perfiles_data) > 0:
-                datos = {'message': 'Success', 'perfiles': perfiles_data}
+                datos = {'message': 'Success', 'usuarios': perfiles_data}
             else:
-                datos = {'message': 'Perfiles no encontrados'}
-
-        return JsonResponse(datos)
+                datos = {'message': 'Usuarios no encontrados'}
+            return JsonResponse(datos)
 
     def post(self, request):
         jd = json.loads(request.body)
-        correo = jd.get('correo', '')
-
-        try:
-            usuario = usuarios.objects.get(correo=correo)
-            perfiles.objects.create(usuario=usuario, nombre=jd['nombre'])
-            datos = {'message': 'Success'}
-        except usuarios.DoesNotExist:
-            datos = {'message': 'Usuario no encontrado'}
-
+        perfiles.objects.create(nombre=jd['nombre'], usuario_id=['usuario_id'])
+        datos = {'message':'Success'}
         return JsonResponse(datos)
 
-    def put(self, request, perfil_id):
+    def put(self, request, id):
         jd = json.loads(request.body)
-        try:
-            perfil = perfiles.objects.get(id=perfil_id)
+        perfiles=list(perfiles.objects.filter(id=id).values())
+        if len(perfiles) > 0:
+            perfil = perfiles.objects.get(id=id)
             perfil.nombre = jd['nombre']
+            perfil.usuario_id = jd['usuario_id']
             perfil.save()
-            datos = {'message': 'Success'}
-        except perfiles.DoesNotExist:
-            datos = {'message': 'Perfil no encontrado'}
+            datos = {'message':'Success'}
+        else:
+            datos = {'message':'perfil no encontrado'}
         return JsonResponse(datos)
 
-    def delete(self, request, perfil_id):
-        try:
-            perfil = perfiles.objects.get(id=perfil_id)
-            perfil.delete()
-            datos = {'message': 'Success'}
-        except perfiles.DoesNotExist:
-            datos = {'message': 'Perfil no encontrado'}
+    def delete(self, request, id):
+        perfiles=list(perfiles.objects.filter(id=id).values())
+        if len(perfiles) > 0:
+            perfiles.objects.filter(id=id).delete()
+            datos = {'message':'Success'}
+        else:
+            datos = {'message':'perfil no encontrado'}
         return JsonResponse(datos)
     
 
@@ -277,32 +252,27 @@ class ClasificacionEdadView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, clasificacion_id=0):
-        if clasificacion_id > 0:
-            try:
-                clasificacion = clasificacionEdad.objects.get(id=clasificacion_id)
-                datos = {'message': 'Success', 'clasificacion': {'id': clasificacion.id, 'clasificacion': clasificacion.clasificacion}}
-            except clasificacionEdad.DoesNotExist:
-                datos = {'message': 'Clasificación no encontrada'}
-        else:
-            clasificaciones_data = list(clasificacionEdad.objects.values())
-            if len(clasificaciones_data) > 0:
-                datos = {'message': 'Success', 'clasificaciones': clasificaciones_data}
+    def get(self, request, id=0):
+        if (id > 0):
+            clasificaciones=list(clasificacionEdad.objects.filter(id=id).values())
+            if len(clasificaciones) > 0:
+                clasificacion = clasificaciones[0]
+                datos = {'message':'Success', 'tipo':clasificaciones}
             else:
-                datos = {'message': 'Clasificaciones no encontradas'}
-
-        return JsonResponse(datos)
+                datos = {'message':'tipo no encontrado'}
+            return JsonResponse(datos)
+        else:
+            clasificaciones = list(tipoUsuario.objects.values())
+            if len(clasificaciones) > 0:
+                datos = {'message':'Success', 'tipos':clasificaciones}
+            else:
+                datos = {'message':'tipos no encontrados'}
+            return JsonResponse(datos)
 
     def post(self, request):
         jd = json.loads(request.body)
-        clasificacion = jd.get('clasificacion', '')
-
-        try:
-            clasificacionEdad.objects.create(clasificacion=clasificacion)
-            datos = {'message': 'Success'}
-        except Exception as e:
-            datos = {'message': f'Error: {str(e)}'}
-
+        clasificacionEdad.objects.create(clasificacion=jd['clasificacion'])
+        datos = {'message':'Success'}
         return JsonResponse(datos)
     
 class GenerosView(View):
@@ -311,10 +281,10 @@ class GenerosView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, genero_id=0):
-        if genero_id > 0:
+    def get(self, request, id=0):
+        if id > 0:
             try:
-                genero = generos.objects.get(id=genero_id)
+                genero = generos.objects.get(id=id)
                 datos = {'message': 'Success', 'genero': {'id': genero.id, 'nombre': genero.nombre}}
             except generos.DoesNotExist:
                 datos = {'message': 'Género no encontrado'}
@@ -345,10 +315,10 @@ class IdiomaView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, idioma_id=0):
-        if idioma_id > 0:
+    def get(self, request, id=0):
+        if id > 0:
             try:
-                idioma_obj = idioma.objects.get(id=idioma_id)
+                idioma_obj = idioma.objects.get(id=id)
                 datos = {'message': 'Success', 'idioma': {'id': idioma_obj.id, 'nombre': idioma_obj.nombre}}
             except idioma.DoesNotExist:
                 datos = {'message': 'Idioma no encontrado'}
@@ -379,10 +349,10 @@ class ContenidoView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, contenido_id=0):
-        if contenido_id > 0:
+    def get(self, request, id=0):
+        if id > 0:
             try:
-                contenido_obj = contenido.objects.get(id=contenido_id)
+                contenido_obj = contenido.objects.get(id=id)
                 contenido_data = {
                     'id': contenido_obj.id,
                     'titulo': contenido_obj.titulo,
@@ -440,11 +410,10 @@ class ContenidoGenerosView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, contenido_generos_id=0):
-        if contenido_generos_id > 0:
+    def get(self, request, id=0):
+        if id > 0:
             try:
-                contenido_generos_obj = contenido_generos.objects.select_related('contenido', 'generos').get(id=contenido_generos_id)
-
+                contenido_generos_obj = contenido_generos.objects.select_related('contenido', 'generos').get(id=id)
                 contenido_generos_data = {
                     'id': contenido_generos_obj.id,
                     'contenido': {
