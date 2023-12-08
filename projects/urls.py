@@ -36,4 +36,6 @@ urlpatterns = [
     path('temporadas/<int:id>/', TemporadasView.as_view(), name='temporadas_detail'),
     path('episodios/', EpisodiosView.as_view(), name='episodios_list'),
     path('episodios/<int:id>/', EpisodiosView.as_view(), name='episodios_detail'),
+    path('valoraciones_contenido/', ValoracionesContenidoView.as_view(), name='valoraciones_contenido_list'),
+    path('valoraciones_contenido/<int:id>/', ValoracionesContenidoView.as_view(), name='valoraciones_contenido_detail'),
 ]
