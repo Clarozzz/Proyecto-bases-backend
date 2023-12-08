@@ -52,6 +52,17 @@ urlpatterns = [
     path('personas/<int:id>/', PersonasView.as_view(), name='personas_detail'),
     path('estudiosproductoras/', EstudiosProductorasView.as_view(), name='estudiosproductoras_list'),
     path('estudiosproductoras/<int:id>/', EstudiosProductorasView.as_view(), name='estudiosproductoras_detail'),
-
+    path('listareproduccioncontenido/', ListaReproduccionContenidoView.as_view(), name='listareproduccioncontenido_list'),
+    path('listareproduccioncontenido/<int:id>/', ListaReproduccionContenidoView.as_view(), name='listareproduccioncontenido_detail'),
+    path('visualizaciones/', VisualizacionesView.as_view(), name='visualizaciones_list'),
+    path('visualizaciones/<int:id>/', VisualizacionesView.as_view(), name='visualizaciones_detail'),
+    path('registrosessiones/', RegistroSessionesView.as_view(), name='registrosessiones_list'),
+    path('registrosessiones/<int:id>/', RegistroSessionesView.as_view(), name='registrosessiones_detail'),
+    path('descargasoffline/', DescargasOfflineView.as_view(), name='descargasoffline_list'),
+    path('descargasoffline/<int:id>/', DescargasOfflineView.as_view(), name='descargasoffline_detail'),
+    path('popularidad/', PopularidadView.as_view(), name='popularidad_list'),
+    path('popularidad/<int:id>/', PopularidadView.as_view(), name='popularidad_detail'),
+     path('historialvisualizacion/', HistorialVisualizacionView.as_view(), name='historialvisualizacion_list'),
+    path('historialvisualizacion/<int:id>/', HistorialVisualizacionView.as_view(), name='historialvisualizacion_detail'),
 
 ]

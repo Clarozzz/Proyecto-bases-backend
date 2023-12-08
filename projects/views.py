@@ -1621,3 +1621,508 @@ class EstudiosProductorasView(View):
 
         return JsonResponse(datos)
     
+class ListaReproduccionContenidoView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                lista_obj = ListaReproduccionContenido.objects.get(id=id)
+                lista_data = {
+                    'id': lista_obj.id,
+                    'usuarioId': {
+                        'id': lista_obj.usuarioId.id,
+                        'correo': lista_obj.usuarioId.correo
+                    },
+                    'nombreLista': lista_obj.nombreLista
+                }
+                datos = {'message': 'Success', 'lista': lista_data}
+            except ListaReproduccionContenido.DoesNotExist:
+                datos = {'message': 'Lista no encontrada'}
+        else:
+            listas_data = list(ListaReproduccionContenido.objects.values())
+            if len(listas_data) > 0:
+                datos = {'message': 'Success', 'listas': listas_data}
+            else:
+                datos = {'message': 'Listas no encontradas'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+
+            nueva_lista = ListaReproduccionContenido(
+                usuarioId=usuario,
+                nombreLista=jd['nombreLista']
+            )
+            nueva_lista.save()
+
+            datos = {'message': 'Success'}
+        except usuarios.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            lista = ListaReproduccionContenido.objects.get(id=id)
+            lista.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            lista.nombreLista = jd['nombreLista']
+            lista.save()
+            datos = {'message': 'Success'}
+        except ListaReproduccionContenido.DoesNotExist:
+            datos = {'message': 'Lista no encontrada'}
+        except usuarios.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            lista = ListaReproduccionContenido.objects.get(id=id)
+            lista.delete()
+            datos = {'message': 'Success'}
+        except ListaReproduccionContenido.DoesNotExist:
+            datos = {'message': 'Lista no encontrada'}
+
+        return JsonResponse(datos)
+
+class VisualizacionesView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                visualizacion_obj = Visualizaciones.objects.get(id=id)
+                visualizacion_data = {
+                    'id': visualizacion_obj.id,
+                    'usuarioId': {
+                        'id': visualizacion_obj.usuarioId.id,
+                        'correo': visualizacion_obj.usuarioId.correo
+                    },
+                    'contenido': {
+                        'id': visualizacion_obj.contenido.id,
+                        'titulo': visualizacion_obj.contenido.titulo,
+                        'descripcion': visualizacion_obj.contenido.descripcion,
+                        'anioLanzamiento': visualizacion_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': visualizacion_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': visualizacion_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': visualizacion_obj.contenido.idiomaOriginal.id,
+                            'nombre': visualizacion_obj.contenido.idiomaOriginal.nombre
+                         }
+                    },
+                    'fechaVisualizacion': visualizacion_obj.fechaVisualizacion
+                }
+                datos = {'message': 'Success', 'visualizacion': visualizacion_data}
+            except Visualizaciones.DoesNotExist:
+                datos = {'message': 'Visualización no encontrada'}
+        else:
+            visualizaciones_data = list(Visualizaciones.objects.values())
+            if len(visualizaciones_data) > 0:
+                datos = {'message': 'Success', 'visualizaciones': visualizaciones_data}
+            else:
+                datos = {'message': 'Visualizaciones no encontradas'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+        contenido_id = jd.get('contenidoId', None)
+
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+            contenido = contenido.objects.get(id=contenido_id)
+
+            nueva_visualizacion = Visualizaciones(
+                usuarioId=usuario,
+                contenido=contenido,
+                #nose si mandarlo ya que es un dato tipo fecha que se genera solo
+            )
+            nueva_visualizacion.save()
+
+            datos = {'message': 'Success'}
+        except (usuarios.DoesNotExist, contenido.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            visualizacion = Visualizaciones.objects.get(id=id)
+            visualizacion.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            visualizacion.contenido = contenido.objects.get(id=jd['contenidoId'])
+            visualizacion.save()
+            datos = {'message': 'Success'}
+        except Visualizaciones.DoesNotExist:
+            datos = {'message': 'Visualización no encontrada'}
+        except (usuarios.DoesNotExist, contenido.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            visualizacion = Visualizaciones.objects.get(id=id)
+            visualizacion.delete()
+            datos = {'message': 'Success'}
+        except Visualizaciones.DoesNotExist:
+            datos = {'message': 'Visualización no encontrada'}
+
+        return JsonResponse(datos)
+
+class RegistroSessionesView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                sesion_obj = RegistroSessiones.objects.get(id=id)
+                sesion_data = {
+                    'id': sesion_obj.id,
+                    'usuarioId': {
+                        'id': sesion_obj.usuarioId.id,
+                        'correo': sesion_obj.usuarioId.correo
+                    },
+                    'fechaHoraInSesion': sesion_obj.fechaHoraInSesion
+                }
+                datos = {'message': 'Success', 'sesion': sesion_data}
+            except RegistroSessiones.DoesNotExist:
+                datos = {'message': 'Sesión no encontrada'}
+        else:
+            sesiones_data = list(RegistroSessiones.objects.values())
+            if len(sesiones_data) > 0:
+                datos = {'message': 'Success', 'sesiones': sesiones_data}
+            else:
+                datos = {'message': 'Sesiones no encontradas'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+
+            nueva_sesion = RegistroSessiones(
+                usuarioId=usuario
+                ##nose si mandarlo ya que es un dato tipo fecha que se genera solo
+            )
+            nueva_sesion.save()
+
+            datos = {'message': 'Success'}
+        except usuarios.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            sesion = RegistroSessiones.objects.get(id=id)
+            sesion.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            sesion.save()
+            datos = {'message': 'Success'}
+        except RegistroSessiones.DoesNotExist:
+            datos = {'message': 'Sesión no encontrada'}
+        except usuarios.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            sesion = RegistroSessiones.objects.get(id=id)
+            sesion.delete()
+            datos = {'message': 'Success'}
+        except RegistroSessiones.DoesNotExist:
+            datos = {'message': 'Sesión no encontrada'}
+
+        return JsonResponse(datos)
+    
+class DescargasOfflineView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                descarga_obj = DescargasOffline.objects.get(id=id)
+                descarga_data = {
+                    'id': descarga_obj.id,
+                    'usuarioId': {
+                        'id': descarga_obj.usuarioId.id,
+                        'correo': descarga_obj.usuarioId.correo
+                    },
+                    'contenido': {
+                        'id': descarga_obj.contenido.id,
+                        'titulo': descarga_obj.contenido.titulo,
+                        'descripcion': descarga_obj.contenido.descripcion,
+                        'anioLanzamiento': descarga_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': descarga_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': descarga_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': descarga_obj.contenido.idiomaOriginal.id,
+                            'nombre': descarga_obj.contenido.idiomaOriginal.nombre
+                         }
+                    },
+                    'fechaDescarga': descarga_obj.fechaDescarga
+                }
+                datos = {'message': 'Success', 'descarga': descarga_data}
+            except DescargasOffline.DoesNotExist:
+                datos = {'message': 'Descarga no encontrada'}
+        else:
+            descargas_data = list(DescargasOffline.objects.values())
+            if len(descargas_data) > 0:
+                datos = {'message': 'Success', 'descargas': descargas_data}
+            else:
+                datos = {'message': 'Descargas no encontradas'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+        contenido_id = jd.get('contenidoId', None)
+
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+            contenido = contenido.objects.get(id=contenido_id)
+
+            nueva_descarga = DescargasOffline(
+                usuarioId=usuario,
+                contenido=contenido
+                ## aqui nose si recopilarlo ya que es un dato tipo fecha que se genera solo
+            )
+            nueva_descarga.save()
+
+            datos = {'message': 'Success'}
+        except (usuarios.DoesNotExist, contenido.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            descarga = DescargasOffline.objects.get(id=id)
+            descarga.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            descarga.contenido = contenido.objects.get(id=jd['contenidoId'])
+            descarga.save()
+            datos = {'message': 'Success'}
+        except DescargasOffline.DoesNotExist:
+            datos = {'message': 'Descarga no encontrada'}
+        except (usuarios.DoesNotExist, contenido.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            descarga = DescargasOffline.objects.get(id=id)
+            descarga.delete()
+            datos = {'message': 'Success'}
+        except DescargasOffline.DoesNotExist:
+            datos = {'message': 'Descarga no encontrada'}
+
+        return JsonResponse(datos)
+
+class PopularidadView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                popularidad_obj = Popularidad.objects.get(id=id)
+                popularidad_data = {
+                    'id': popularidad_obj.id,
+                    'contenido': {
+                        'id': popularidad_obj.contenido.id,
+                        'titulo': popularidad_obj.contenido.titulo,
+                        'descripcion': popularidad_obj.contenido.descripcion,
+                        'anioLanzamiento': popularidad_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': popularidad_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': popularidad_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': popularidad_obj.contenido.idiomaOriginal.id,
+                            'nombre': popularidad_obj.contenido.idiomaOriginal.nombre
+                         }
+                    },
+                    'cantidadVisualizaciones': popularidad_obj.cantidadVisualizaciones
+                }
+                datos = {'message': 'Success', 'popularidad': popularidad_data}
+            except Popularidad.DoesNotExist:
+                datos = {'message': 'Popularidad no encontrada'}
+        else:
+            popularidades_data = list(Popularidad.objects.values())
+            if len(popularidades_data) > 0:
+                datos = {'message': 'Success', 'popularidades': popularidades_data}
+            else:
+                datos = {'message': 'Popularidades no encontradas'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        contenido_id = jd.get('contenidoId', None)
+
+        try:
+            contenido = contenido.objects.get(id=contenido_id)
+
+            nueva_popularidad = Popularidad(
+                contenido=contenido,
+                cantidadVisualizaciones=jd.get('cantidadVisualizaciones', 0)
+            )
+            nueva_popularidad.save()
+
+            datos = {'message': 'Success'}
+        except contenido.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            popularidad = Popularidad.objects.get(id=id)
+            popularidad.contenido = contenido.objects.get(id=jd['contenidoId'])
+            popularidad.cantidadVisualizaciones = jd.get('cantidadVisualizaciones', 0)
+            popularidad.save()
+            datos = {'message': 'Success'}
+        except Popularidad.DoesNotExist:
+            datos = {'message': 'Popularidad no encontrada'}
+        except contenido.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            popularidad = Popularidad.objects.get(id=id)
+            popularidad.delete()
+            datos = {'message': 'Success'}
+        except Popularidad.DoesNotExist:
+            datos = {'message': 'Popularidad no encontrada'}
+
+        return JsonResponse(datos)
+
+class HistorialVisualizacionView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                historial_obj = HistorialVisualizacion.objects.get(id=id)
+                historial_data = {
+                    'id': historial_obj.id,
+                    'usuarioId': {
+                        'id': historial_obj.usuarioId.id,
+                        'correo': historial_obj.usuarioId.correo
+                    },
+                    'contenido': {
+                        'id': historial_obj.contenido.id,
+                        'titulo': historial_obj.contenido.titulo,
+                        'descripcion': historial_obj.contenido.descripcion,
+                        'anioLanzamiento': historial_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': historial_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': historial_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': historial_obj.contenido.idiomaOriginal.id,
+                            'nombre': historial_obj.contenido.idiomaOriginal.nombre
+                         }
+                    },
+                    'fechaVisualizacion': historial_obj.fechaVisualizacion,
+                    'duracionVisualizacion': historial_obj.duracionVisualizacion
+                }
+                datos = {'message': 'Success', 'historial': historial_data}
+            except HistorialVisualizacion.DoesNotExist:
+                datos = {'message': 'Historial no encontrado'}
+        else:
+            historiales_data = list(HistorialVisualizacion.objects.values())
+            if len(historiales_data) > 0:
+                datos = {'message': 'Success', 'historiales': historiales_data}
+            else:
+                datos = {'message': 'Historiales no encontrados'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+        contenido_id = jd.get('contenidoId', None)
+
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+            contenido = contenido.objects.get(id=contenido_id)
+
+            nuevo_historial = HistorialVisualizacion(
+                usuarioId=usuario,
+                contenido=contenido,
+                duracionVisualizacion=jd.get('duracionVisualizacion', 0)
+            )
+            nuevo_historial.save()
+
+            datos = {'message': 'Success'}
+        except (usuarios.DoesNotExist, contenido.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            historial = HistorialVisualizacion.objects.get(id=id)
+            historial.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            historial.contenido = contenido.objects.get(id=jd['contenidoId'])
+            historial.duracionVisualizacion = jd.get('duracionVisualizacion', 0)
+            historial.save()
+            datos = {'message': 'Success'}
+        except HistorialVisualizacion.DoesNotExist:
+            datos = {'message': 'Historial no encontrado'}
+        except (usuarios.DoesNotExist, contenido.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            historial = HistorialVisualizacion.objects.get(id=id)
+            historial.delete()
+            datos = {'message': 'Success'}
+        except HistorialVisualizacion.DoesNotExist:
+            datos = {'message': 'Historial no encontrado'}
+
+        return JsonResponse(datos)
