@@ -704,3 +704,395 @@ class SeriesView(View):
             datos = {'message': 'Serie no encontrada'}
 
         return JsonResponse(datos)
+    
+class ContenidoIdiomasView(View):
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                contenidoIdiomas_obj = contenido_idiomas.objects.get(id=id)
+                contenidoIdioma_data = {
+                    
+                    'idioma': {
+                        'id': contenidoIdiomas_obj.idioma.id,
+                        'nombre': contenidoIdiomas_obj.idioma.nombre
+                    },
+                    'contenido': {
+                        'id': contenidoIdiomas_obj.contenido.id,
+                        'titulo': contenidoIdiomas_obj.contenido.titulo,
+                        'descripcion': contenidoIdiomas_obj.contenido.descripcion,
+                        'anioLanzamiento': contenidoIdiomas_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': contenidoIdiomas_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': contenidoIdiomas_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': contenidoIdiomas_obj.contenido.idiomaOriginal.id,
+                            'nombre': contenidoIdiomas_obj.contenido.idiomaOriginal.nombre
+                        }
+                    }
+                }
+                datos = {'message': 'Success', 'contenido': contenidoIdioma_data}
+            except contenido_subtitulos.DoesNotExist:
+                datos = {'message': 'Contenido no encontrado'}
+        else:
+            contenidoIdioma_data = list(contenido_idiomas.objects.values())
+            if len(contenidoIdioma_data) > 0:
+                datos = {'message': 'Success', 'contenidos': contenidoIdioma_data}
+            else:
+                datos = {'message': 'Contenidos no encontrados'}
+
+        return JsonResponse(datos)
+        
+        
+    def post(self, request):
+        jd = json.loads(request.body)
+        contenido_id = jd.get('contenido', None)
+        idioma_id = jd.get('idioma', None)
+
+        try:
+            contenido = contenido.objects.get(id=contenido_id)
+            idioma = idioma.objects.get(id=idioma_id)
+            datos = {'message': 'Success'}
+        except (contenido.DoesNotExist, idioma.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+    
+class ContenidoSubtitulosView(View):
+    
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                contenidoSubtitulos_obj = contenido_subtitulos.objects.get(id=id)
+                contenidoSubtitulos_data = {
+                    
+                    'idioma': {
+                        'id': contenidoSubtitulos_obj.idioma.id,
+                        'nombre': contenidoSubtitulos_obj.idioma.nombre
+                    },
+                    'contenido': {
+                        'id': contenidoSubtitulos_obj.contenido.id,
+                        'titulo': contenidoSubtitulos_obj.contenido.titulo,
+                        'descripcion': contenidoSubtitulos_obj.contenido.descripcion,
+                        'anioLanzamiento': contenidoSubtitulos_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': contenidoSubtitulos_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': contenidoSubtitulos_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': contenidoSubtitulos_obj.contenido.idiomaOriginal.id,
+                            'nombre': contenidoSubtitulos_obj.contenido.idiomaOriginal.nombre
+                        }
+                    }
+                }
+                datos = {'message': 'Success', 'contenido': contenidoSubtitulos_data}
+            except contenido_subtitulos.DoesNotExist:
+                datos = {'message': 'Contenido no encontrado'}
+        else:
+            contenidoSubtitulos_data = list(contenido_subtitulos.objects.values())
+            if len(contenidoSubtitulos_data) > 0:
+                datos = {'message': 'Success', 'contenidos': contenidoSubtitulos_data}
+            else:
+                datos = {'message': 'Contenidos no encontrados'}
+
+        return JsonResponse(datos)
+        
+        
+    def post(self, request):
+        jd = json.loads(request.body)
+        contenido_id = jd.get('contenido', None)
+        idioma_id = jd.get('idioma', None)
+
+        try:
+            contenido = contenido.objects.get(id=contenido_id)
+            idioma = idioma.objects.get(id=idioma_id)
+            datos = {'message': 'Success'}
+        except (contenido.DoesNotExist, idioma.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+    
+    
+class TemporadasView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                temporadas_obj = temporadas.objects.get(id=id)
+                temporadas_data = {
+                    'id': temporadas_obj.id,
+                    'nombre': temporadas_obj.nombre,
+                    'serie': {
+                        'id': temporadas_obj.serie.id,
+                        'contenido': temporadas_obj.serie.contenido,
+                        'cantTemporadas': temporadas_obj.serie.cantTemporadas
+                    },
+                    'anoDeEstreno': temporadas_obj.anoDeEstreno,
+                    'cantEpisodios': temporadas_obj.cantEpisodios
+                   
+                }
+                datos = {'message': 'Success', 'temporada': temporadas_data}
+            except temporadas.DoesNotExist:
+                datos = {'message': 'temporada no encontrado'}
+        else:
+            temporadas_data = list(temporadas.objects.values())
+            if len(temporadas_data) > 0:
+                datos = {'message': 'Success', 'temporadas': temporadas_data}
+            else:
+                datos = {'message': 'Temporadas no encontrados'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        serie_id = jd.get('serie', None)
+        
+
+        try:
+            serie = series.objects.get(id=serie_id)
+           
+
+            nuevo_temporada = temporadas(
+                nombre =jd['nombre'],
+                serie = serie,
+                anoDeEstreno =jd['anoDeEstreno'],
+                cantEpisodios = jd['cantEpisodios']
+            )
+            nuevo_temporada.save()
+
+            datos = {'message': 'Success'}
+        except (serie.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+    
+def put(self, request, id):
+        jd = json.loads(request.body)
+        serie_id = jd.get('serie', None)
+        try:
+            serie = series.objects.get(id=serie_id)
+            temporada = temporadas.objects.get(id=id)
+            temporada.nombre = jd['nombre']
+            temporada.anoDeEstreno = jd['anoDeEstreno']
+            temporada.cantEpisodios = jd['cantEpisodios']
+            temporada.serie = serie
+            temporada.save()
+            datos = {'message': 'Success'}
+        except temporadas.DoesNotExist:
+            datos = {'message': 'Temporada no encontrada'}
+        except series.DoesNotExist:
+            datos = {'message': 'Serie no encontrada'}
+
+        return JsonResponse(datos)
+
+def delete(self, request, id):
+        try:
+            temporada = temporadas.objects.get(id=id)
+            temporada.delete()
+            datos = {'message': 'Success'}
+        except temporadas.DoesNotExist:
+            datos = {'message': 'Temporada no encontrada'}
+
+        return JsonResponse(datos)   
+
+class EpisodiosView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                episodio_obj = episodios.objects.get(id=id)
+                episodio_data = {
+                    'id': episodio_obj.id,
+                    'temporada': {
+                        'id': episodio_obj.temporada.id,
+                        'nombre': episodio_obj.temporada.nombre,
+                        'serie': {
+                            'id': episodio_obj.temporada.serie.id,
+                            'contenido': episodio_obj.temporada.serie.contenido,
+                            'cantTemporadas': episodio_obj.temporada.serie.cantTemporadas
+                        },
+                        'anoDeEstreno': episodio_obj.temporada.anoDeEstreno,
+                        'cantEpisodios': episodio_obj.temporada.cantEpisodios
+                    },
+                    'numeroEpisodio': episodio_obj.numeroEpisodio,
+                    'tituloEpisodio': episodio_obj.tituloEpisodio,
+                    'duracion': episodio_obj.duracion,
+                    'anoLanzamiento': episodio_obj.anoLanzamiento,
+                    'descripcion': episodio_obj.descripcion
+                }
+                datos = {'message': 'Success', 'episodio': episodio_data}
+            except episodios.DoesNotExist:
+                datos = {'message': 'Episodio no encontrado'}
+        else:
+            episodios_data = list(episodios.objects.values())
+            if len(episodios_data) > 0:
+                datos = {'message': 'Success', 'episodios': episodios_data}
+            else:
+                datos = {'message': 'Episodios no encontrados'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        temporada_id = jd.get('temporada', None)
+
+        try:
+            temporada = temporadas.objects.get(id=temporada_id)
+
+            nuevo_episodio = episodios(
+                temporada=temporada,
+                numeroEpisodio=jd['numeroEpisodio'],
+                tituloEpisodio=jd['tituloEpisodio'],
+                duracion=jd['duracion'],
+                anoLanzamiento=jd['anoLanzamiento'],
+                descripcion=jd.get('descripcion', None)
+            )
+            nuevo_episodio.save()
+
+            datos = {'message': 'Success'}
+        except temporadas.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            episodio = episodios.objects.get(id=id)
+            episodio.temporada = temporadas.objects.get(id=jd['temporada'])
+            episodio.numeroEpisodio = jd['numeroEpisodio']
+            episodio.tituloEpisodio = jd['tituloEpisodio']
+            episodio.duracion = jd['duracion']
+            episodio.anoLanzamiento = jd['anoLanzamiento']
+            episodio.descripcion = jd.get('descripcion', None)
+            episodio.save()
+            datos = {'message': 'Success'}
+        except episodios.DoesNotExist:
+            datos = {'message': 'Episodio no encontrado'}
+        except temporadas.DoesNotExist:
+            datos = {'message': 'Temporada no encontrada'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            episodio = episodios.objects.get(id=id)
+            episodio.delete()
+            datos = {'message': 'Success'}
+        except episodios.DoesNotExist:
+            datos = {'message': 'Episodio no encontrado'}
+
+        return JsonResponse(datos)
+    
+class ValoracionesContenidoView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                valoracion_obj = ValoracionesContenido.objects.get(id=id)
+                valoracion_data = {
+                    'id': valoracion_obj.id,
+                    'usuarioId': {
+                        'id': valoracion_obj.usuarioId.id,
+                        'correo': valoracion_obj.usuarioId.correo
+                    },
+                    'contenido': {
+                        'id': valoracion_obj.contenido.id,
+                        'titulo': valoracion_obj.contenido.titulo,
+                        'descripcion': valoracion_obj.contenido.descripcion,
+                        'anioLanzamiento': valoracion_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': valoracion_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': valoracion_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': valoracion_obj.contenido.idiomaOriginal.id,
+                            'nombre': valoracion_obj.contenido.idiomaOriginal.nombre
+                         }
+                    },
+                    'valoracion': valoracion_obj.valoracion,
+                    'comentario': valoracion_obj.comentario,
+                    'fechaValoracion': valoracion_obj.fechaValoracion
+                }
+                datos = {'message': 'Success', 'valoracion': valoracion_data}
+            except ValoracionesContenido.DoesNotExist:
+                datos = {'message': 'Valoración no encontrada'}
+        else:
+            valoraciones_data = list(ValoracionesContenido.objects.values())
+            if len(valoraciones_data) > 0:
+                datos = {'message': 'Success', 'valoraciones': valoraciones_data}
+            else:
+                datos = {'message': 'Valoraciones no encontradas'}
+
+        return JsonResponse(datos)
+    
+def post(self, request):
+    jd = json.loads(request.body)
+    usuario_id = jd.get('usuarioId', None)
+    contenido_id = jd.get('contenido', None)
+
+    try:
+        usuario = usuarios.objects.get(id=usuario_id)
+        contenido_obj = contenido.objects.get(id=contenido_id)
+
+        nueva_valoracion = ValoracionesContenido(
+            usuarioId=usuario,
+            contenido=contenido_obj,
+            valoracion=jd['valoracion'],
+            comentario=jd['comentario']
+        )
+        nueva_valoracion.save()
+
+        datos = {'message': 'Success'}
+    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+        datos = {'message': f'Error: {str(e)}'}
+
+    return JsonResponse(datos)
+
+def put(self, request, id):
+    jd = json.loads(request.body)
+    try:
+        valoracion = ValoracionesContenido.objects.get(id=id)
+        valoracion.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+        valoracion.contenido = contenido.objects.get(id=jd['contenido'])
+        valoracion.valoracion = jd['valoracion']
+        valoracion.comentario = jd['comentario']
+        valoracion.save()
+        datos = {'message': 'Success'}
+    except ValoracionesContenido.DoesNotExist:
+        datos = {'message': 'Valoración no encontrada'}
+    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+        datos = {'message': f'Error: {str(e)}'}
+
+    return JsonResponse(datos)
+
+def delete(self, request, id):
+    try:
+        valoracion = ValoracionesContenido.objects.get(id=id)
+        valoracion.delete()
+        datos = {'message': 'Success'}
+    except ValoracionesContenido.DoesNotExist:
+        datos = {'message': 'Valoración no encontrada'}
+
+    return JsonResponse(datos)

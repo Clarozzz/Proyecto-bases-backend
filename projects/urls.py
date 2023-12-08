@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import *
 
+
+
 urlpatterns = [
     path('tipoUsuario/', tipoUsuarioView.as_view(), name='tipoUsuario'),
     path('tipoUsuario/<int:id>/', tipoUsuarioView.as_view(), name='tipoUsuario_process'),
@@ -26,4 +28,12 @@ urlpatterns = [
     path('peliculas/<int:id>/', PeliculasView.as_view(), name='peliculas_detail'),
     path('series/', SeriesView.as_view(), name='series'),
     path('series/<int:id>/', SeriesView.as_view(), name='series_detail'),
+    path('contenido_subtitulos/', ContenidoSubtitulosView.as_view(), name='contenido_subtitulos_list'),
+    path('contenido_subtitulos/<int:id>/', ContenidoSubtitulosView.as_view(), name='contenido_subtitulos_detail'),
+    path('contenido_idiomas/', ContenidoIdiomasView.as_view(), name='contenido_idiomas_list'),
+    path('contenido_idiomas/<int:id>/', ContenidoIdiomasView.as_view(), name='contenido_idiomas_detail'),
+    path('temporadas/', TemporadasView.as_view(), name='temporadas_list'),
+    path('temporadas/<int:id>/', TemporadasView.as_view(), name='temporadas_detail'),
+    path('episodios/', EpisodiosView.as_view(), name='episodios_list'),
+    path('episodios/<int:id>/', EpisodiosView.as_view(), name='episodios_detail'),
 ]
