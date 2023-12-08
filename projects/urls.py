@@ -38,4 +38,20 @@ urlpatterns = [
     path('episodios/<int:id>/', EpisodiosView.as_view(), name='episodios_detail'),
     path('valoraciones_contenido/', ValoracionesContenidoView.as_view(), name='valoraciones_contenido_list'),
     path('valoraciones_contenido/<int:id>/', ValoracionesContenidoView.as_view(), name='valoraciones_contenido_detail'),
+    path('playlist/', PlaylistsView.as_view(), name='playlist_list'),
+    path('playlist/<int:id>/', PlaylistsView.as_view(), name='playlist_detail'),
+    path('planes/', PlanesView.as_view(), name='planes_list'),
+    path('planes/<int:id>/', PlanesView.as_view(), name='planes_detail'),
+    path('facturacion/', FacturacionView.as_view(), name='facturacion_list'),
+    path('facturacion/<int:id>/', FacturacionView.as_view(), name='facturacion_detail'),
+    path('paises/', PaisView.as_view(), name='paises_list'),
+    path('paises/<int:id>/', PaisView.as_view(), name='paises_detail'),
+    path('roles/', RolView.as_view(), name='roles_list'),
+    path('roles/<int:id>/', RolView.as_view(), name='roles_detail'),
+    path('personas/', PersonasView.as_view(), name='personas_list'),
+    path('personas/<int:id>/', PersonasView.as_view(), name='personas_detail'),
+    path('estudiosproductoras/', EstudiosProductorasView.as_view(), name='estudiosproductoras_list'),
+    path('estudiosproductoras/<int:id>/', EstudiosProductorasView.as_view(), name='estudiosproductoras_detail'),
+
+
 ]

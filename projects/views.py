@@ -1096,3 +1096,528 @@ def delete(self, request, id):
         datos = {'message': 'Valoración no encontrada'}
 
     return JsonResponse(datos)
+
+class PlaylistsView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                playlists_obj = Playlists.objects.get(id=id)
+                playlists_data = {
+                    'id': playlists_obj.id,
+                    'usuarioId': {
+                        'id': playlists_obj.usuarioId.id,
+                        'correo': playlists_obj.usuarioId.correo
+                    },
+                    'contenido': {
+                        'id': playlists_obj.contenido.id,
+                        'titulo': playlists_obj.contenido.titulo,
+                        'descripcion': playlists_obj.contenido.descripcion,
+                        'anioLanzamiento': playlists_obj.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': playlists_obj.contenido.clasificacionEdad.id,
+                            'clasificacion': playlists_obj.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': playlists_obj.contenido.idiomaOriginal.id,
+                            'nombre': playlists_obj.contenido.idiomaOriginal.nombre
+                         }
+                    },
+                    'valoracion': playlists_obj.valoracion,
+                    'comentario': playlists_obj.comentario,
+                    'fechaValoracion': playlists_obj.fechaValoracion
+                }
+                datos = {'message': 'Success', 'valoracion': playlists_data}
+            except Playlists.DoesNotExist:
+                datos = {'message': 'Valoración no encontrada'}
+        else:
+            playlists_data = list(Playlists.objects.values())
+            if len(playlists_data) > 0:
+                datos = {'message': 'Success', 'valoraciones': playlists_data}
+            else:
+                datos = {'message': 'Valoraciones no encontradas'}
+
+        return JsonResponse(datos)
+    
+def post(self, request):
+    jd = json.loads(request.body)
+    usuario_id = jd.get('usuarioId', None)
+    contenido_id = jd.get('contenido', None)
+
+    try:
+        usuario = usuarios.objects.get(id=usuario_id)
+        contenido_obj = contenido.objects.get(id=contenido_id)
+
+        nueva_playlist = Playlists(
+            usuarioId=usuario,
+            contenido=contenido_obj,
+            valoracion=jd['valoracion'],
+            comentario=jd['comentario']
+        )
+        nueva_playlist.save()
+
+        datos = {'message': 'Success'}
+    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+        datos = {'message': f'Error: {str(e)}'}
+
+    return JsonResponse(datos)
+
+def put(self, request, id):
+    jd = json.loads(request.body)
+    try:
+        playlist = Playlists.objects.get(id=id)
+        playlist.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+        playlist.contenido = contenido.objects.get(id=jd['contenido'])
+        playlist.nombreLista = jd['nombreLista']
+        playlist.save()
+        datos = {'message': 'Success'}
+    except Playlists.DoesNotExist:
+        datos = {'message': 'Valoración no encontrada'}
+    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+        datos = {'message': f'Error: {str(e)}'}
+
+    return JsonResponse(datos)
+
+def delete(self, request, id):
+    try:
+        playlist = Playlists.objects.get(id=id)
+        playlist.delete()
+        datos = {'message': 'Success'}
+    except ValoracionesContenido.DoesNotExist:
+        datos = {'message': 'Valoración no encontrada'}
+
+    return JsonResponse(datos)
+
+class PlanesView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                plan_obj = Planes.objects.get(id=id)
+                plan_data = {
+                    'id': plan_obj.id,
+                    'nombre': plan_obj.nombre,
+                    'precioMensual': str(plan_obj.precioMensual),
+                    'calidadVideo': plan_obj.calidadVideo,
+                    'resolucion': plan_obj.resolucion
+                }
+                datos = {'message': 'Success', 'plan': plan_data}
+            except Planes.DoesNotExist:
+                datos = {'message': 'Plan no encontrado'}
+        else:
+            planes_data = list(Planes.objects.values())
+            if len(planes_data) > 0:
+                datos = {'message': 'Success', 'planes': planes_data}
+            else:
+                datos = {'message': 'Planes no encontrados'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        nuevo_plan = Planes(
+            nombre=jd['nombre'],
+            precioMensual=jd['precioMensual'],
+            calidadVideo=jd['calidadVideo'],
+            resolucion=jd['resolucion']
+        )
+        nuevo_plan.save()
+
+        datos = {'message': 'Success'}
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            plan = Planes.objects.get(id=id)
+            plan.nombre = jd['nombre']
+            plan.precioMensual = jd['precioMensual']
+            plan.calidadVideo = jd['calidadVideo']
+            plan.resolucion = jd['resolucion']
+            plan.save()
+            datos = {'message': 'Success'}
+        except Planes.DoesNotExist:
+            datos = {'message': 'Plan no encontrado'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            plan = Planes.objects.get(id=id)
+            plan.delete()
+            datos = {'message': 'Success'}
+        except Planes.DoesNotExist:
+            datos = {'message': 'Plan no encontrado'}
+
+        return JsonResponse(datos)
+    
+class FacturacionView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                factura_obj = Facturacion.objects.get(id=id)
+                factura_data = {
+                    'id': factura_obj.id,
+                    'usuarioId': {
+                        'id': factura_obj.usuarioId.id,
+                        'correo': factura_obj.usuarioId.correo
+                    },
+                    'numeroDeTarjeta': factura_obj.numeroDeTarjeta,
+                    'fechaDeVencimiento': str(factura_obj.fechaDeVencimiento),
+                    'cvv': factura_obj.cvv,
+                    'nombreEnLaTarjeta': factura_obj.nombreEnLaTarjeta
+                }
+                datos = {'message': 'Success', 'facturacion': factura_data}
+            except Facturacion.DoesNotExist:
+                datos = {'message': 'Facturación no encontrada'}
+        else:
+            facturas_data = list(Facturacion.objects.values())
+            if len(facturas_data) > 0:
+                datos = {'message': 'Success', 'facturaciones': facturas_data}
+            else:
+                datos = {'message': 'Facturaciones no encontradas'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+
+            nueva_factura = Facturacion(
+                usuarioId=usuario,
+                numeroDeTarjeta=jd['numeroDeTarjeta'],
+                fechaDeVencimiento=jd['fechaDeVencimiento'],
+                cvv=jd['cvv'],
+                nombreEnLaTarjeta=jd['nombreEnLaTarjeta']
+            )
+            nueva_factura.save()
+
+            datos = {'message': 'Success'}
+        except usuarios.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            factura = Facturacion.objects.get(id=id)
+            factura.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            factura.numeroDeTarjeta = jd['numeroDeTarjeta']
+            factura.fechaDeVencimiento = jd['fechaDeVencimiento']
+            factura.cvv = jd['cvv']
+            factura.nombreEnLaTarjeta = jd['nombreEnLaTarjeta']
+            factura.save()
+            datos = {'message': 'Success'}
+        except Facturacion.DoesNotExist:
+            datos = {'message': 'Facturación no encontrada'}
+        except usuarios.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            factura = Facturacion.objects.get(id=id)
+            factura.delete()
+            datos = {'message': 'Success'}
+        except Facturacion.DoesNotExist:
+            datos = {'message': 'Facturación no encontrada'}
+
+        return JsonResponse(datos)
+    
+class PaisView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                pais_obj = pais.objects.get(id=id)
+                pais_data = {
+                    'id': pais_obj.id,
+                    'nombre': pais_obj.nombre
+                }
+                datos = {'message': 'Success', 'pais': pais_data}
+            except pais.DoesNotExist:
+                datos = {'message': 'País no encontrado'}
+        else:
+            paises_data = list(pais.objects.values())
+            if len(paises_data) > 0:
+                datos = {'message': 'Success', 'paises': paises_data}
+            else:
+                datos = {'message': 'Países no encontrados'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+
+        nuevo_pais = pais(nombre=jd['nombre'])
+        nuevo_pais.save()
+
+        datos = {'message': 'Success'}
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            paisobj = pais.objects.get(id=id)
+            paisobj.nombre = jd['nombre']
+            paisobj.save()
+            datos = {'message': 'Success'}
+        except pais.DoesNotExist:
+            datos = {'message': 'País no encontrado'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            paisobj = pais.objects.get(id=id)
+            paisobj.delete()
+            datos = {'message': 'Success'}
+        except pais.DoesNotExist:
+            datos = {'message': 'País no encontrado'}
+
+        return JsonResponse(datos)
+
+class RolView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                rol_obj = rol.objects.get(id=id)
+                rol_data = {
+                    'id': rol_obj.id,
+                    'nombre': rol_obj.nombre
+                }
+                datos = {'message': 'Success', 'rol': rol_data}
+            except rol.DoesNotExist:
+                datos = {'message': 'Rol no encontrado'}
+        else:
+            roles_data = list(rol.objects.values())
+            if len(roles_data) > 0:
+                datos = {'message': 'Success', 'roles': roles_data}
+            else:
+                datos = {'message': 'Roles no encontrados'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+
+        nuevo_rol = rol(nombre=jd['nombre'])
+        nuevo_rol.save()
+
+        datos = {'message': 'Success'}
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            rolObj =rol.objects.get(id=id)
+            rolObj.nombre = jd['nombre']
+            rolObj.save()
+            datos = {'message': 'Success'}
+        except rol.DoesNotExist:
+            datos = {'message': 'Rol no encontrado'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            rolObj = rol.objects.get(id=id)
+            rolObj.delete()
+            datos = {'message': 'Success'}
+        except rol.DoesNotExist:
+            datos = {'message': 'Rol no encontrado'}
+
+        return JsonResponse(datos)
+    
+class PersonasView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                persona_obj = personas.objects.get(id=id)
+                persona_data = {
+                    'id': persona_obj.id,
+                    'nombre': persona_obj.nombre,
+                    'apellido': persona_obj.apellido,
+                    'fechaDeNacimiento': str(persona_obj.fechaDeNacimiento),
+                    'pais': {
+                        'id': persona_obj.pais.id,
+                        'nombre': persona_obj.pais.nombre
+                    },
+                    'rol': {
+                        'id': persona_obj.rol.id,
+                        'nombre': persona_obj.rol.nombre
+                    }
+                }
+                datos = {'message': 'Success', 'persona': persona_data}
+            except personas.DoesNotExist:
+                datos = {'message': 'Persona no encontrada'}
+        else:
+            personas_data = list(personas.objects.values())
+            if len(personas_data) > 0:
+                datos = {'message': 'Success', 'personas': personas_data}
+            else:
+                datos = {'message': 'Personas no encontradas'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        pais_id = jd.get('pais', None)
+        rol_id = jd.get('rol', None)
+
+        try:
+            pais = pais.objects.get(id=pais_id)
+            rol = rol.objects.get(id=rol_id)
+
+            nueva_persona = personas(
+                nombre=jd['nombre'],
+                apellido=jd['apellido'],
+                fechaDeNacimiento=jd['fechaDeNacimiento'],
+                pais=pais,
+                rol=rol
+            )
+            nueva_persona.save()
+
+            datos = {'message': 'Success'}
+        except (pais.DoesNotExist, rol.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            persona = personas.objects.get(id=id)
+            persona.nombre = jd['nombre']
+            persona.apellido = jd['apellido']
+            persona.fechaDeNacimiento = jd['fechaDeNacimiento']
+            persona.pais = pais.objects.get(id=jd['pais'])
+            persona.rol = rol.objects.get(id=jd['rol'])
+            persona.save()
+            datos = {'message': 'Success'}
+        except personas.DoesNotExist:
+            datos = {'message': 'Persona no encontrada'}
+        except (pais.DoesNotExist, rol.DoesNotExist) as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            persona = personas.objects.get(id=id)
+            persona.delete()
+            datos = {'message': 'Success'}
+        except personas.DoesNotExist:
+            datos = {'message': 'Persona no encontrada'}
+
+        return JsonResponse(datos)
+    
+class EstudiosProductorasView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, id=0):
+        if id > 0:
+            try:
+                estudio_obj = EstudiosProductoras.objects.get(id=id)
+                estudio_data = {
+                    'id': estudio_obj.id,
+                    'nombre': estudio_obj.nombre,
+                    'pais': {
+                        'id': estudio_obj.pais.id,
+                        'nombre': estudio_obj.pais.nombre
+                    },
+                    'anoDeFundacion': estudio_obj.anoDeFundacion
+                }
+                datos = {'message': 'Success', 'estudio': estudio_data}
+            except EstudiosProductoras.DoesNotExist:
+                datos = {'message': 'Estudio no encontrado'}
+        else:
+            estudios_data = list(EstudiosProductoras.objects.values())
+            if len(estudios_data) > 0:
+                datos = {'message': 'Success', 'estudios': estudios_data}
+            else:
+                datos = {'message': 'Estudios no encontrados'}
+
+        return JsonResponse(datos)
+
+    def post(self, request):
+        jd = json.loads(request.body)
+        pais_id = jd.get('pais', None)
+
+        try:
+            pais = pais.objects.get(id=pais_id)
+
+            nuevo_estudio = EstudiosProductoras(
+                nombre=jd['nombre'],
+                pais=pais,
+                anoDeFundacion=jd['anoDeFundacion']
+            )
+            nuevo_estudio.save()
+
+            datos = {'message': 'Success'}
+        except pais.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            estudio = EstudiosProductoras.objects.get(id=id)
+            estudio.nombre = jd['nombre']
+            estudio.pais = pais.objects.get(id=jd['pais'])
+            estudio.anoDeFundacion = jd['anoDeFundacion']
+            estudio.save()
+            datos = {'message': 'Success'}
+        except EstudiosProductoras.DoesNotExist:
+            datos = {'message': 'Estudio no encontrado'}
+        except pais.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
+
+        return JsonResponse(datos)
+
+    def delete(self, request, id):
+        try:
+            estudio = EstudiosProductoras.objects.get(id=id)
+            estudio.delete()
+            datos = {'message': 'Success'}
+        except EstudiosProductoras.DoesNotExist:
+            datos = {'message': 'Estudio no encontrado'}
+
+        return JsonResponse(datos)
+    
