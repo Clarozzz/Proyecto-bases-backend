@@ -73,6 +73,10 @@ class UsuariosView(View):
             usuario_data = list(usuarios.objects.filter(id=id).values())
             if len(usuario_data) > 0:
                 usuario = usuario_data[0]
+                telefonosA = list(telefonos.objects.filter(usuarioId = usuario.get('id')).values())
+                facturacionA = list(Facturacion.objects.filter(usuarioId = usuario.get('id')).values())
+                usuario['telefonos']=telefonosA
+                usuario['facturacion']=facturacionA
                 datos = {'message': 'Success', 'usuario': usuario}
             else:
                 datos = {'message': 'Usuario no encontrado'}
