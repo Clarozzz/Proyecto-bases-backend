@@ -386,14 +386,14 @@ class ContenidoView(View):
 
         try:
             clasificacion = clasificacionEdad.objects.get(id=clasificacion_id)
-            idioma = idioma.objects.get(id=idioma_id)
+            idiomaObj = idioma.objects.get(id=idioma_id)
 
             nuevo_contenido = contenido(
                 titulo=jd['titulo'],
                 descripcion=jd['descripcion'],
                 anioLanzamiento=jd['anioLanzamiento'],
                 clasificacionEdad=clasificacion,
-                idiomaOriginal=idioma
+                idiomaOriginal=idiomaObj
             )
             nuevo_contenido.save()
 
@@ -469,10 +469,10 @@ class SubtitulosView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, subtitulos_id=0):
-        if subtitulos_id > 0:
+    def get(self, request, id=0):
+        if id > 0:
             try:
-                subtitulos_obj = subtitulos.objects.select_related('idioma').get(id=subtitulos_id)
+                subtitulos_obj = subtitulos.objects.select_related('idioma').get(id=id)
 
                 subtitulos_data = {
                     'id': subtitulos_obj.id,
@@ -515,10 +515,10 @@ class PeliculasView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get(self, request, peliculas_id=0):
-        if peliculas_id > 0:
+    def get(self, request, id=0):
+        if id > 0:
             try:
-                pelicula = peliculas.objects.get(id=peliculas_id)
+                pelicula = peliculas.objects.get(id=id)
                 datos = {
                     'message': 'Success',
                     'pelicula': {
@@ -562,14 +562,14 @@ class PeliculasView(View):
 
         return JsonResponse(datos)
 
-    def put(self, request, peliculas_id):
+    def put(self, request, id):
         jd = json.loads(request.body)
         duracion = jd.get('duracion', 0)
         contenido_id = jd.get('contenido_id', 0)
 
         try:
-            pelicula = peliculas.objects.get(id=peliculas_id)
-            contenido_obj = contenido.objects.get(id=contenido_id)
+            pelicula = peliculas.objects.get(id=id)
+            contenido_obj = contenido.objects.get(id=id)
             pelicula.duracion = duracion
             pelicula.contenido = contenido_obj
             pelicula.save()
@@ -581,9 +581,9 @@ class PeliculasView(View):
 
         return JsonResponse(datos)
 
-    def delete(self, request, peliculas_id):
+    def delete(self, request, id):
         try:
-            pelicula = peliculas.objects.get(id=peliculas_id)
+            pelicula = peliculas.objects.get(id=id)
             pelicula.delete()
             datos = {'message': 'Success'}
         except peliculas.DoesNotExist:
@@ -755,8 +755,13 @@ class ContenidoIdiomasView(View):
         idioma_id = jd.get('idioma', None)
 
         try:
-            contenido = contenido.objects.get(id=contenido_id)
-            idioma = idioma.objects.get(id=idioma_id)
+            contenidoObj = contenido.objects.get(id=contenido_id)
+            idiomaObj = idioma.objects.get(id=idioma_id)
+            cont_idioma = contenido_idiomas(
+                idioma = idiomaObj,
+                contenido = contenidoObj
+            )
+            cont_idioma.save()
             datos = {'message': 'Success'}
         except (contenido.DoesNotExist, idioma.DoesNotExist) as e:
             datos = {'message': f'Error: {str(e)}'}
@@ -813,8 +818,13 @@ class ContenidoSubtitulosView(View):
         idioma_id = jd.get('idioma', None)
 
         try:
-            contenido = contenido.objects.get(id=contenido_id)
-            idioma = idioma.objects.get(id=idioma_id)
+            contenidoObj = contenido.objects.get(id=contenido_id)
+            idiomaObj = idioma.objects.get(id=idioma_id)
+            cont_sub = contenido_subtitulos(
+                idioma = idiomaObj,
+                contenido = contenidoObj
+            )
+            cont_sub.save()
             datos = {'message': 'Success'}
         except (contenido.DoesNotExist, idioma.DoesNotExist) as e:
             datos = {'message': f'Error: {str(e)}'}
@@ -879,7 +889,7 @@ class TemporadasView(View):
 
         return JsonResponse(datos)
     
-def put(self, request, id):
+    def put(self, request, id):
         jd = json.loads(request.body)
         serie_id = jd.get('serie', None)
         try:
@@ -898,7 +908,7 @@ def put(self, request, id):
 
         return JsonResponse(datos)
 
-def delete(self, request, id):
+    def delete(self, request, id):
         try:
             temporada = temporadas.objects.get(id=id)
             temporada.delete()
@@ -1047,55 +1057,55 @@ class ValoracionesContenidoView(View):
 
         return JsonResponse(datos)
     
-def post(self, request):
-    jd = json.loads(request.body)
-    usuario_id = jd.get('usuarioId', None)
-    contenido_id = jd.get('contenido', None)
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+        contenido_id = jd.get('contenido', None)
 
-    try:
-        usuario = usuarios.objects.get(id=usuario_id)
-        contenido_obj = contenido.objects.get(id=contenido_id)
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+            contenido_obj = contenido.objects.get(id=contenido_id)
 
-        nueva_valoracion = ValoracionesContenido(
-            usuarioId=usuario,
-            contenido=contenido_obj,
-            valoracion=jd['valoracion'],
-            comentario=jd['comentario']
-        )
-        nueva_valoracion.save()
+            nueva_valoracion = ValoracionesContenido(
+                usuarioId=usuario,
+                contenido=contenido_obj,
+                valoracion=jd['valoracion'],
+                comentario=jd['comentario']
+            )
+            nueva_valoracion.save()
 
-        datos = {'message': 'Success'}
-    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
-        datos = {'message': f'Error: {str(e)}'}
+            datos = {'message': 'Success'}
+        except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
 
-    return JsonResponse(datos)
+        return JsonResponse(datos)
 
-def put(self, request, id):
-    jd = json.loads(request.body)
-    try:
-        valoracion = ValoracionesContenido.objects.get(id=id)
-        valoracion.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
-        valoracion.contenido = contenido.objects.get(id=jd['contenido'])
-        valoracion.valoracion = jd['valoracion']
-        valoracion.comentario = jd['comentario']
-        valoracion.save()
-        datos = {'message': 'Success'}
-    except ValoracionesContenido.DoesNotExist:
-        datos = {'message': 'Valoración no encontrada'}
-    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
-        datos = {'message': f'Error: {str(e)}'}
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            valoracion = ValoracionesContenido.objects.get(id=id)
+            valoracion.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            valoracion.contenido = contenido.objects.get(id=jd['contenido'])
+            valoracion.valoracion = jd['valoracion']
+            valoracion.comentario = jd['comentario']
+            valoracion.save()
+            datos = {'message': 'Success'}
+        except ValoracionesContenido.DoesNotExist:
+            datos = {'message': 'Valoración no encontrada'}
+        except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
 
-    return JsonResponse(datos)
+        return JsonResponse(datos)
 
-def delete(self, request, id):
-    try:
-        valoracion = ValoracionesContenido.objects.get(id=id)
-        valoracion.delete()
-        datos = {'message': 'Success'}
-    except ValoracionesContenido.DoesNotExist:
-        datos = {'message': 'Valoración no encontrada'}
+    def delete(self, request, id):
+        try:
+            valoracion = ValoracionesContenido.objects.get(id=id)
+            valoracion.delete()
+            datos = {'message': 'Success'}
+        except ValoracionesContenido.DoesNotExist:
+            datos = {'message': 'Valoración no encontrada'}
 
-    return JsonResponse(datos)
+        return JsonResponse(datos)
 
 class PlaylistsView(View):
 
@@ -1143,54 +1153,53 @@ class PlaylistsView(View):
 
         return JsonResponse(datos)
     
-def post(self, request):
-    jd = json.loads(request.body)
-    usuario_id = jd.get('usuarioId', None)
-    contenido_id = jd.get('contenido', None)
+    def post(self, request):
+        jd = json.loads(request.body)
+        usuario_id = jd.get('usuarioId', None)
+        contenido_id = jd.get('contenido', None)
 
-    try:
-        usuario = usuarios.objects.get(id=usuario_id)
-        contenido_obj = contenido.objects.get(id=contenido_id)
+        try:
+            usuario = usuarios.objects.get(id=usuario_id)
+            contenido_obj = contenido.objects.get(id=contenido_id)
 
-        nueva_playlist = Playlists(
-            usuarioId=usuario,
-            contenido=contenido_obj,
-            valoracion=jd['valoracion'],
-            comentario=jd['comentario']
-        )
-        nueva_playlist.save()
+            nueva_playlist = Playlists(
+                usuarioId=usuario,
+                contenido=contenido_obj,
+                nombreLista=jd['nombreLista']
+            )
+            nueva_playlist.save()
 
-        datos = {'message': 'Success'}
-    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
-        datos = {'message': f'Error: {str(e)}'}
+            datos = {'message': 'Success'}
+        except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
 
-    return JsonResponse(datos)
+        return JsonResponse(datos)
 
-def put(self, request, id):
-    jd = json.loads(request.body)
-    try:
-        playlist = Playlists.objects.get(id=id)
-        playlist.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
-        playlist.contenido = contenido.objects.get(id=jd['contenido'])
-        playlist.nombreLista = jd['nombreLista']
-        playlist.save()
-        datos = {'message': 'Success'}
-    except Playlists.DoesNotExist:
-        datos = {'message': 'Valoración no encontrada'}
-    except usuarios.DoesNotExist or contenido.DoesNotExist as e:
-        datos = {'message': f'Error: {str(e)}'}
+    def put(self, request, id):
+        jd = json.loads(request.body)
+        try:
+            playlist = Playlists.objects.get(id=id)
+            playlist.usuarioId = usuarios.objects.get(id=jd['usuarioId'])
+            playlist.contenido = contenido.objects.get(id=jd['contenido'])
+            playlist.nombreLista = jd['nombreLista']
+            playlist.save()
+            datos = {'message': 'Success'}
+        except Playlists.DoesNotExist:
+            datos = {'message': 'Valoración no encontrada'}
+        except usuarios.DoesNotExist or contenido.DoesNotExist as e:
+            datos = {'message': f'Error: {str(e)}'}
 
-    return JsonResponse(datos)
+        return JsonResponse(datos)
 
-def delete(self, request, id):
-    try:
-        playlist = Playlists.objects.get(id=id)
-        playlist.delete()
-        datos = {'message': 'Success'}
-    except ValoracionesContenido.DoesNotExist:
-        datos = {'message': 'Valoración no encontrada'}
+    def delete(self, request, id):
+        try:
+            playlist = Playlists.objects.get(id=id)
+            playlist.delete()
+            datos = {'message': 'Success'}
+        except ValoracionesContenido.DoesNotExist:
+            datos = {'message': 'Valoración no encontrada'}
 
-    return JsonResponse(datos)
+        return JsonResponse(datos)
 
 class PlanesView(View):
 
@@ -1498,15 +1507,15 @@ class PersonasView(View):
         rol_id = jd.get('rol', None)
 
         try:
-            pais = pais.objects.get(id=pais_id)
-            rol = rol.objects.get(id=rol_id)
+            paisObj = pais.objects.get(id=pais_id)
+            rolObj = rol.objects.get(id=rol_id)
 
             nueva_persona = personas(
                 nombre=jd['nombre'],
                 apellido=jd['apellido'],
                 fechaDeNacimiento=jd['fechaDeNacimiento'],
-                pais=pais,
-                rol=rol
+                pais=paisObj,
+                rol=rolObj
             )
             nueva_persona.save()
 
@@ -1580,11 +1589,11 @@ class EstudiosProductorasView(View):
         pais_id = jd.get('pais', None)
 
         try:
-            pais = pais.objects.get(id=pais_id)
+            paisObj = pais.objects.get(id=pais_id)
 
             nuevo_estudio = EstudiosProductoras(
                 nombre=jd['nombre'],
-                pais=pais,
+                pais=paisObj,
                 anoDeFundacion=jd['anoDeFundacion']
             )
             nuevo_estudio.save()
@@ -1746,11 +1755,11 @@ class VisualizacionesView(View):
 
         try:
             usuario = usuarios.objects.get(id=usuario_id)
-            contenido = contenido.objects.get(id=contenido_id)
+            contenidoObj = contenido.objects.get(id=contenido_id)
 
             nueva_visualizacion = Visualizaciones(
                 usuarioId=usuario,
-                contenido=contenido,
+                contenido=contenidoObj
                 #nose si mandarlo ya que es un dato tipo fecha que se genera solo
             )
             nueva_visualizacion.save()
@@ -1910,11 +1919,11 @@ class DescargasOfflineView(View):
 
         try:
             usuario = usuarios.objects.get(id=usuario_id)
-            contenido = contenido.objects.get(id=contenido_id)
+            contenidoObj = contenido.objects.get(id=contenido_id)
 
             nueva_descarga = DescargasOffline(
                 usuarioId=usuario,
-                contenido=contenido
+                contenido=contenidoObj
                 ## aqui nose si recopilarlo ya que es un dato tipo fecha que se genera solo
             )
             nueva_descarga.save()
@@ -1995,10 +2004,10 @@ class PopularidadView(View):
         contenido_id = jd.get('contenidoId', None)
 
         try:
-            contenido = contenido.objects.get(id=contenido_id)
+            contenidoId = contenido.objects.get(id=contenido_id)
 
             nueva_popularidad = Popularidad(
-                contenido=contenido,
+                contenido=contenidoId,
                 cantidadVisualizaciones=jd.get('cantidadVisualizaciones', 0)
             )
             nueva_popularidad.save()
@@ -2086,11 +2095,11 @@ class HistorialVisualizacionView(View):
 
         try:
             usuario = usuarios.objects.get(id=usuario_id)
-            contenido = contenido.objects.get(id=contenido_id)
+            contenidoObj = contenido.objects.get(id=contenido_id)
 
             nuevo_historial = HistorialVisualizacion(
                 usuarioId=usuario,
-                contenido=contenido,
+                contenido=contenidoObj,
                 duracionVisualizacion=jd.get('duracionVisualizacion', 0)
             )
             nuevo_historial.save()
