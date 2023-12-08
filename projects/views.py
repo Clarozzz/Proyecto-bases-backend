@@ -847,7 +847,20 @@ class TemporadasView(View):
                     'nombre': temporadas_obj.nombre,
                     'serie': {
                         'id': temporadas_obj.serie.id,
-                        'contenido': temporadas_obj.serie.contenido,
+                        'contenido': {
+                        'id': temporadas_obj.serie.contenido.id,
+                        'titulo': temporadas_obj.serie.contenido.titulo,
+                        'descripcion': temporadas_obj.serie.contenido.descripcion,
+                        'anioLanzamiento': temporadas_obj.serie.contenido.anioLanzamiento,
+                        'clasificacionEdad': {
+                            'id': temporadas_obj.serie.contenido.clasificacionEdad.id,
+                            'clasificacion': temporadas_obj.serie.contenido.clasificacionEdad.clasificacion
+                        },
+                        'idiomaOriginal': {
+                            'id': temporadas_obj.serie.contenido.idiomaOriginal.id,
+                            'nombre': temporadas_obj.serie.contenido.idiomaOriginal.nombre
+                        }
+                    },
                         'cantTemporadas': temporadas_obj.serie.cantTemporadas
                     },
                     'anoDeEstreno': temporadas_obj.anoDeEstreno,
@@ -935,7 +948,20 @@ class EpisodiosView(View):
                         'nombre': episodio_obj.temporada.nombre,
                         'serie': {
                             'id': episodio_obj.temporada.serie.id,
-                            'contenido': episodio_obj.temporada.serie.contenido,
+                            'contenido': {
+                            'id': episodio_obj.temporada.serie.contenido.id,
+                            'titulo': episodio_obj.temporada.serie.contenido.titulo,
+                            'descripcion': episodio_obj.temporada.serie.contenido.descripcion,
+                            'anioLanzamiento': episodio_obj.temporada.serie.contenido.anioLanzamiento,
+                            'clasificacionEdad': {
+                                'id': episodio_obj.temporada.serie.contenido.clasificacionEdad.id,
+                                'clasificacion': episodio_obj.temporada.serie.contenido.clasificacionEdad.clasificacion
+                            },
+                            'idiomaOriginal': {
+                                'id': episodio_obj.temporada.serie.contenido.idiomaOriginal.id,
+                                'nombre': episodio_obj.temporada.serie.contenido.idiomaOriginal.nombre
+                            }
+                    },
                             'cantTemporadas': episodio_obj.temporada.serie.cantTemporadas
                         },
                         'anoDeEstreno': episodio_obj.temporada.anoDeEstreno,
