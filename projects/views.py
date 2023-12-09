@@ -1997,7 +1997,7 @@ class PopularidadView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id=0):
-        top_n = 10  # Número de elementos Top que quieres mostrar
+        top_n = 10 
 
         if id > 0:
             try:
@@ -2016,7 +2016,7 @@ class PopularidadView(View):
                         'idiomaOriginal': {
                             'id': popularidad_obj.contenido.idiomaOriginal.id,
                             'nombre': popularidad_obj.contenido.idiomaOriginal.nombre
-                         }
+                        }
                     },
                     'cantidadVisualizaciones': popularidad_obj.cantidadVisualizaciones
                 }
@@ -2024,12 +2024,10 @@ class PopularidadView(View):
             except Popularidad.DoesNotExist:
                 datos = {'message': 'Popularidad no encontrada'}
         else:
-            # Obtener los top 10 de popularidad ordenados en forma descendente
             top_popularidades_data = list(
                 Popularidad.objects.order_by('-cantidadVisualizaciones')[:top_n].values()
             )
 
-            # Obtener información del contenido asociado a los top 10 de popularidad
             top_contenidos_data = []
             for popularidad_data in top_popularidades_data:
                 contenido_id = popularidad_data['contenido_id']
