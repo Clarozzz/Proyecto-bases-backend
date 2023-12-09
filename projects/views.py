@@ -1997,6 +1997,8 @@ class PopularidadView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, id=0):
+        top_n = 10  # Número de elementos Top que quieres mostrar
+
         if id > 0:
             try:
                 popularidad_obj = Popularidad.objects.get(id=id)
@@ -2014,7 +2016,7 @@ class PopularidadView(View):
                         'idiomaOriginal': {
                             'id': popularidad_obj.contenido.idiomaOriginal.id,
                             'nombre': popularidad_obj.contenido.idiomaOriginal.nombre
-                        }
+                         }
                     },
                     'cantidadVisualizaciones': popularidad_obj.cantidadVisualizaciones
                 }
@@ -2022,13 +2024,33 @@ class PopularidadView(View):
             except Popularidad.DoesNotExist:
                 datos = {'message': 'Popularidad no encontrada'}
         else:
-            
-            popularidades_data = list(Popularidad.objects.order_by('cantidadVisualizaciones').values())
-            
-            if len(popularidades_data) > 0:
-                datos = {'message': 'Success', 'popularidades': popularidades_data}
-            else:
-                datos = {'message': 'Popularidades no encontradas'}
+            # Obtener los top 10 de popularidad ordenados en forma descendente
+            top_popularidades_data = list(
+                Popularidad.objects.order_by('-cantidadVisualizaciones')[:top_n].values()
+            )
+
+            # Obtener información del contenido asociado a los top 10 de popularidad
+            top_contenidos_data = []
+            for popularidad_data in top_popularidades_data:
+                contenido_id = popularidad_data['contenido_id']
+                contenido_obj = contenido.objects.get(id=contenido_id)
+                contenido_data = {
+                    'id': contenido_obj.id,
+                    'titulo': contenido_obj.titulo,
+                    'descripcion': contenido_obj.descripcion,
+                    'anioLanzamiento': contenido_obj.anioLanzamiento,
+                    'clasificacionEdad': {
+                        'id': contenido_obj.clasificacionEdad.id,
+                        'clasificacion': contenido_obj.clasificacionEdad.clasificacion
+                    },
+                    'idiomaOriginal': {
+                        'id': contenido_obj.idiomaOriginal.id,
+                        'nombre': contenido_obj.idiomaOriginal.nombre
+                    }
+                }
+                top_contenidos_data.append(contenido_data)
+
+            datos = {'message': 'Success', 'top_popularidades': top_popularidades_data, 'top_contenidos': top_contenidos_data}
 
         return JsonResponse(datos)
 
