@@ -4,6 +4,7 @@ from .views import *
 
 
 urlpatterns = [
+    path('login/', login, name='hora'),
     path('tipoUsuario/', tipoUsuarioView.as_view(), name='tipoUsuario'),
     path('tipoUsuario/<int:id>/', tipoUsuarioView.as_view(), name='tipoUsuario_process'),
     path('usuario/', UsuariosView.as_view(), name='usuario'),

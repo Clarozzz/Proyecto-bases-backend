@@ -1,4 +1,6 @@
-from django.http import JsonResponse
+from django.http import HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.hashers import check_password
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -2124,7 +2126,7 @@ class HistorialVisualizacionView(View):
                         'idiomaOriginal': {
                             'id': historial_obj.contenido.idiomaOriginal.id,
                             'nombre': historial_obj.contenido.idiomaOriginal.nombre
-                         }
+                        }
                     },
                     'fechaVisualizacion': historial_obj.fechaVisualizacion,
                     'duracionVisualizacion': historial_obj.duracionVisualizacion
@@ -2188,3 +2190,33 @@ class HistorialVisualizacionView(View):
             datos = {'message': 'Historial no encontrado'}
 
         return JsonResponse(datos)
+
+@csrf_exempt
+def login(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            correo = data.get('correo')
+            contrasena = data.get('contrasena')
+        except json.JSONDecodeError:
+            return JsonResponse({'message': 'Formato JSON inválido'}, status=400)
+
+        # Buscar en la tabla de usuarios
+        try:
+            usuario = usuarios.objects.get(correo=correo, contrasena=contrasena)
+        except usuarios.DoesNotExist:
+            usuario = None
+
+        if usuario:
+            # Devolver el registro encontrado en la respuesta JSON sin la contraseña
+            respuesta = {
+                'correo': usuario.correo,
+                'fechaRegistro': usuario.fechaRegistro.strftime('%Y-%m-%d %H:%M:%S'),
+                'tipoUsuario': usuario.tipoUsuario.tipo if usuario.tipoUsuario else None,
+                # Agregar otros campos según sea necesario
+            }
+            return JsonResponse(respuesta)
+        else:
+            return JsonResponse({'message': 'Credenciales inválidas'}, status=401)
+
+    return JsonResponse({'message': 'Método no permitido'}, status=405)
