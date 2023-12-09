@@ -5,7 +5,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
 from .models import *
 import json
-from django.contrib.auth import authenticate, login
 
 # Create your views here.
 class tipoUsuarioView(View):
@@ -2015,7 +2014,7 @@ class PopularidadView(View):
                         'idiomaOriginal': {
                             'id': popularidad_obj.contenido.idiomaOriginal.id,
                             'nombre': popularidad_obj.contenido.idiomaOriginal.nombre
-                         }
+                        }
                     },
                     'cantidadVisualizaciones': popularidad_obj.cantidadVisualizaciones
                 }
@@ -2023,7 +2022,9 @@ class PopularidadView(View):
             except Popularidad.DoesNotExist:
                 datos = {'message': 'Popularidad no encontrada'}
         else:
-            popularidades_data = list(Popularidad.objects.values())
+            
+            popularidades_data = list(Popularidad.objects.order_by('cantidadVisualizaciones').values())
+            
             if len(popularidades_data) > 0:
                 datos = {'message': 'Success', 'popularidades': popularidades_data}
             else:

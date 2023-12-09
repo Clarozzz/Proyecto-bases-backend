@@ -64,5 +64,4 @@ urlpatterns = [
     path('popularidad/<int:id>/', PopularidadView.as_view(), name='popularidad_detail'),
     path('historialvisualizacion/', HistorialVisualizacionView.as_view(), name='historialvisualizacion_list'),
     path('historialvisualizacion/<int:id>/', HistorialVisualizacionView.as_view(), name='historialvisualizacion_detail'),
-
 ]
